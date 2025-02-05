@@ -1,0 +1,7 @@
+Approach,Base,Exponent,Modulus,Result,Execution Time (seconds)
+Direct Approach,3,644,645,36,1.0967254638671875e-05
+Direct Approach,7,121,13,7,5.7220458984375e-06
+Exponentiation By Squaring Approach,3,644,645,36,1.0013580322265625e-05
+Exponentiation By Squaring Approach,7,121,13,7,3.814697265625e-06
+Python Builtin Function Approach,3,644,645,36,3.814697265625e-06
+Python Builtin Function Approach,7,121,13,7,3.0994415283203125e-06
