@@ -1,3 +1,6 @@
+import sympy
+import random
+import string
 import math
 import time
 import csv
@@ -6,7 +9,7 @@ import concurrent.futures
 
 
 
-def log_and_save_modular_exponentiation_approaches(func, approach, base, exponent, modulus, log_file=None):
+def run_modular_exponentiation_approaches_and_save_results(func, approach, base, exponent, modulus, log_file=None):
     """
     A general function to log the modular exponentiation results, time taken, and save it to a CSV file.
     
@@ -40,7 +43,10 @@ def log_and_save_modular_exponentiation_approaches(func, approach, base, exponen
     execution_time = end_time - start_time
 
     # Log the results (printing to console)
-    print(f"{approach}\n==================\nBase: {base}, Exponent: {exponent}, Modulus: {modulus}\nResult: {result}, Execution Time: {execution_time:.6f} seconds")
+    with open(os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), "modular_exponentiation_output.txt"), "a") as f:
+        print(f"{approach}\n==================\nBase: {base}, Exponent: {exponent}, Modulus: {modulus}\nResult: {result}, Execution Time: {execution_time:.6f} seconds\n\n")
+        f.write(f"{approach}\n==================\nBase: {base}, Exponent: {exponent}, Modulus: {modulus}\nResult: {result}, Execution Time: {execution_time:.6f} seconds\n\n")
+
 
 
     # Save the results to a CSV file
@@ -66,7 +72,7 @@ def log_and_save_modular_exponentiation_approaches(func, approach, base, exponen
 
 
 
-def run_and_save_results(func, label, p, q, e, filename=None):
+def run_rsa_decryption_and_save_results(func, label, p, q, e, filename=None):
     """
     Run the brute force calculation for d and save the results to a CSV file.
     This function calls brute_force_d, displays the result, and saves it.
@@ -77,7 +83,7 @@ def run_and_save_results(func, label, p, q, e, filename=None):
     
     d, elapsed_time = func(p, q, e)
 
-    with open(os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), "output.txt"), "a") as f:
+    with open(os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), "rsa_output.txt"), "a") as f:
         print(f"{label}\n==================\np: {p}, q: {q}, e: {e}\nd: {d}, Execution Time: {elapsed_time:.6f} seconds\n\n")
         f.write(f"{label}\n==================\np: {p}, q: {q}, e: {e}\nd: {d}, Execution Time: {elapsed_time:.6f} seconds\n\n")
 
@@ -141,6 +147,11 @@ def modinv(e, phi):
     else:
         return x % phi
 
+def generate_prime(digits):
+    """Generates a random prime number with the specified number of digits."""
+    lower = 10**(digits-1)
+    upper = 10**digits - 1
+    return sympy.randprime(lower, upper)
 
 
 def convurrent_running():
@@ -161,13 +172,51 @@ def convurrent_running():
     # Use ThreadPoolExecutor to run in parallel
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = {
-            executor.submit(run_and_save_results, label, p, q, e_val, filename): label
+            executor.submit(run_rsa_decryption_and_save_results, label, p, q, e_val, filename): label
             for label, (p, q) in prime_pairs.items()
         }
         
         for future in concurrent.futures.as_completed(futures):
             future.result()  # Ensure completion before exiting
 
-# if __name__ == "__main__":
-#     main()
+
+
+
+def generate_random_code(length: int, alphanumeric=False):
+    characters = string.digits if not alphanumeric else string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(length))
+
+
+
+def run_brute_force_password_cracking_tests_and_save_results(func, label, code, length, save_path=None):
+
+    if not save_path:
+        save_path = os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), f'{length}_character_password_cracking_log.csv')
+    
+    elapsed_time = func(code, length)
+    
+    with open(os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), f'{length}_character_password_cracking_log.txt'), "a") as f:
+        print(f"{label}\n==================\ncode: {code}, length: {length}, Execution Time: {elapsed_time:.6f} seconds\n\n")
+        f.write(f"{label}\n==================\ncode: {code}, length: {length}, Execution Time: {elapsed_time:.6f} seconds\n\n")
+
+
+    file_exists = False
+    try:
+        with open(save_path, 'r') as f:
+            file_exists = True
+    except FileNotFoundError:
+        pass
+    
+    if not file_exists:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)  # Ensure the data directory exists
+        with open(save_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['Length', 'Type', 'Code', 'Time (seconds)'])
+
+
+    with open(save_path, 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([length, label, code, elapsed_time])
+    
+    print(f"Results saved to {save_path}")
 
