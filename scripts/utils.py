@@ -1,6 +1,10 @@
+import math
 import time
 import csv
 import os
+import concurrent.futures
+
+
 
 def log_and_save_modular_exponentiation_approaches(func, approach, base, exponent, modulus, log_file=None):
     """
@@ -59,3 +63,111 @@ def log_and_save_modular_exponentiation_approaches(func, approach, base, exponen
     with open(log_file, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([approach, base, exponent, modulus, result, execution_time])
+
+
+
+def run_and_save_results(func, label, p, q, e, filename=None):
+    """
+    Run the brute force calculation for d and save the results to a CSV file.
+    This function calls brute_force_d, displays the result, and saves it.
+    """
+    # Call the brute_force_d function
+    if not filename:
+        filename = os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), 'rsa_log.csv')
+    
+    d, elapsed_time = func(p, q, e)
+
+    with open(os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), "output.txt"), "a") as f:
+        print(f"{label}\n==================\np: {p}, q: {q}, e: {e}\nd: {d}, Execution Time: {elapsed_time:.6f} seconds\n\n")
+        f.write(f"{label}\n==================\np: {p}, q: {q}, e: {e}\nd: {d}, Execution Time: {elapsed_time:.6f} seconds\n\n")
+
+    file_exists = False
+    try:
+        with open(filename, 'r') as f:
+            file_exists = True
+    except FileNotFoundError:
+        pass
+    
+    # If file doesn't exist, create the file and add header
+    if not file_exists:
+        os.makedirs(os.path.dirname(filename), exist_ok=True)  # Ensure the data directory exists
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['No of Digits', 'p', 'q', 'e', 'd', 'Execution Time (seconds)'])
+
+    # Append the result to the CSV file
+    with open(filename, 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([label, p, q, e, d, elapsed_time])
+
+
+
+
+
+
+
+def is_prime(n):
+    """Return True if n is prime (simple trial division)."""
+    if n < 2:
+        return False
+    if n in (2,3):
+        return True
+    if n % 2 == 0:
+        return False
+    for i in range(3, int(math.sqrt(n))+1, 2):
+        if n % i == 0:
+            return False
+    return True
+
+def gcd(a, b):
+    """Compute the greatest common divisor using Euclid's algorithm."""
+    while b:
+        a, b = b, a % b
+    return a
+
+def extended_gcd(a, b):
+    """Return tuple (g, x, y) such that ax + by = g = gcd(a, b)."""
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, x, y = extended_gcd(b % a, a)
+        return (g, y - (b // a) * x, x)
+
+def modinv(e, phi):
+    """Compute the modular inverse of e mod phi using the Extended Euclidean Algorithm."""
+    g, x, _ = extended_gcd(e, phi)
+    if g != 1:
+        raise Exception('Modular inverse does not exist')
+    else:
+        return x % phi
+
+
+
+def convurrent_running():
+    prime_pairs = {
+        "2-digit": (43, 59),
+        "4-digit": (1009, 1013),
+        # "6-digit": (100003, 100019),
+        # "8-digit": (10000019, 10000079),
+        # "10-digit": (1000000007, 1000000009)
+    }
+    
+    e_val = 13
+    filename = os.path.join(os.getcwd(), 'rsa_log.csv')
+
+    
+    print("Starting brute-force d computation in parallel...")
+
+    # Use ThreadPoolExecutor to run in parallel
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = {
+            executor.submit(run_and_save_results, label, p, q, e_val, filename): label
+            for label, (p, q) in prime_pairs.items()
+        }
+        
+        for future in concurrent.futures.as_completed(futures):
+            future.result()  # Ensure completion before exiting
+
+# if __name__ == "__main__":
+#     main()
+
