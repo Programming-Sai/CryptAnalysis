@@ -1,0 +1,15 @@
+2-digit
+==================
+p: 89, q: 17, e: 13
+d: 325, Execution Time: 0.000080 seconds
+
+4-digit
+==================
+p: 2953, q: 6907, e: 13
+d: 6272773, Execution Time: 2.847473 seconds
+
+6-digit
+==================
+p: 100003, q: 100019, e: 13
+d: 4616307709, Execution Time: 1922.659906 seconds
+

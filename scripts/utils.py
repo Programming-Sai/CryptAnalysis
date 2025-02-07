@@ -188,35 +188,36 @@ def generate_random_code(length: int, alphanumeric=False):
 
 
 
+import os
+import csv
+
 def run_brute_force_password_cracking_tests_and_save_results(func, label, code, length, save_path=None):
+    base_dir = os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data'))
+    os.makedirs(base_dir, exist_ok=True)  # Ensure directory exists
 
     if not save_path:
-        save_path = os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), f'{length}_character_password_cracking_log.csv')
+        save_path = os.path.join(base_dir, f'{length}_character_password_cracking_log.csv')
     
     elapsed_time = func(code, length)
-    
-    with open(os.path.join(os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data')), f'{length}_character_password_cracking_log.txt'), "a") as f:
-        print(f"{label}\n==================\ncode: {code}, length: {length}, Execution Time: {elapsed_time:.6f} seconds\n\n")
-        f.write(f"{label}\n==================\ncode: {code}, length: {length}, Execution Time: {elapsed_time:.6f} seconds\n\n")
 
+    # Save to TXT file
+    txt_path = os.path.join(base_dir, f'{length}_character_password_cracking_log.txt')
+    with open(txt_path, "a") as f:
+        log_entry = f"{label}\n==================\nCode: {code}, Length: {length}, Execution Time: {elapsed_time:.6f} seconds\n\n"
+        print(log_entry)  # For debugging
+        f.write(log_entry)
+        f.flush()  # Ensure data is written immediately
 
-    file_exists = False
-    try:
-        with open(save_path, 'r') as f:
-            file_exists = True
-    except FileNotFoundError:
-        pass
-    
-    if not file_exists:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)  # Ensure the data directory exists
+    # Ensure CSV file has a header
+    if not os.path.exists(save_path):
         with open(save_path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['Length', 'Type', 'Code', 'Time (seconds)'])
 
-
+    # Append new results
     with open(save_path, 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([length, label, code, elapsed_time])
-    
-    print(f"Results saved to {save_path}")
+        file.flush()  # Ensure data is written immediately
 
+    print(f"Results saved to {save_path}")

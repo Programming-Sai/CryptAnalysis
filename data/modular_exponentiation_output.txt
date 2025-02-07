@@ -1,0 +1,39 @@
+Direct Approach
+==================
+Base: 3, Exponent: 644, Modulus: 645
+Result: 36, Execution Time: 0.000011 seconds
+
+
+
+Direct Approach
+==================
+Base: 7, Exponent: 121, Modulus: 13
+Result: 7, Execution Time: 0.000006 seconds
+
+
+
+Exponentiation By Squaring Approach
+==================
+Base: 3, Exponent: 644, Modulus: 645
+Result: 36, Execution Time: 0.000010 seconds
+
+
+
+Exponentiation By Squaring Approach
+==================
+Base: 7, Exponent: 121, Modulus: 13
+Result: 7, Execution Time: 0.000004 seconds
+
+
+
+Python Builtin Function Approach
+==================
+Base: 3, Exponent: 644, Modulus: 645
+Result: 36, Execution Time: 0.000004 seconds
+
+
+
+Python Builtin Function Approach
+==================
+Base: 7, Exponent: 121, Modulus: 13
+Result: 7, Execution Time: 0.000003 seconds
